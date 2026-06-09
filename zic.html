@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV2X Expérimentation</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        /* Conteneur vidéo arrière-plan */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .video-background video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: cover;
+        }
+        
+        /* Interface */
+        .coin-texte {
+            position: fixed;
+            top: 20px;
+            font-size: 14px;
+            letter-spacing: 2px;
+            z-index: 2;
+            pointer-events: none;
+            background: rgb(0, 0, 0);
+            padding: 8px 16px;
+            color: white;
+        }
+        
+        #haut-gauche { left: 20px; }
+        #haut-droite { right: 20px; }
+        
+        .track-title {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 2;
+            pointer-events: none;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            -webkit-text-stroke: 1px rgb(25, 0, 255); /* Contour en rouge (WebKit) */
+            /* Fallback for non-WebKit browsers: approximate stroke with multiple shadows */
+            text-shadow: -1px -1px 0 rgb(38, 0, 255), 1px -1px 0 rgb(4, 0, 255), -1px 1px 0 rgb(0, 64, 255), 1px 1px 0 rgb(0, 93, 242);
+            padding: 8px 20px;
+            border-radius: 5px;
+            white-space: nowrap;
+            color: white;
+        }
+        
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        
+        .nav-arrow:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        #arrow-left { left: 20px; }
+        #arrow-right { right: 20px; }
+        
+        .track-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            font-size: 12px;
+            background: rgb(0, 0, 0);
+            padding: 5px 15px;
+            border-radius: 5px;
+            pointer-events: none;
+            color: white;
+        }
+        
+        /* Message de démarrage */
+        #start-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            background: rgba(0,0,0,0.9);
+            padding: 30px 50px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(15px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 20px;
+            letter-spacing: 3px;
+            white-space: nowrap;
+        }
+        
+        #start-message:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            border-color: white;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Bouton Pause/Play */
+        .play-pause-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .play-pause-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+        
+        .play-pause-btn:active {
+            transform: scale(0.95);
+        }
+        
+        @media (max-width: 768px) {
+            .track-title { font-size: 14px; white-space: normal; width: auto; top: 15px; }
+            .nav-arrow { width: 45px; height: 45px; font-size: 24px; }
+            .play-pause-btn { width: 40px; height: 40px; font-size: 16px; bottom: 15px; right: 15px; }
+            #start-message { font-size: 14px; padding: 20px 30px; white-space: normal; text-align: center; }
+            .coin-texte { font-size: 10px; top: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Vidéos d'arrière-plan -->
+    <div class="video-background" id="video-container">
+        <video id="video-0" class="bg-video" muted loop playsinline>
+            <source src="video/video1.mp4" type="video/mp4">
+        </video>
+        <video id="video-1" class="bg-video" muted loop playsinline style="display: none;">
+            <source src="video/video2.mp4" type="video/mp4">
+        </video>
+        <video id="video-2" class="bg-video" muted loop playsinline style="display: none;">
+            <source src="video/video3.mp4" type="video/mp4">
+        </video>
+        <video id="video-3" class="bg-video" muted loop playsinline style="display: none;">
+            <source src="video4.mp4" type="video/mp4">
+        </video>
+        <video id="video-4" class="bg-video" muted loop playsinline style="display: none;">
+            <source src="video/video1.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Interface -->
+    <div id="haut-gauche" class="coin-texte">EV2X</div>
+    <div id="haut-droite" class="coin-texte">Les Pas Perdus</div>
+    
+    <div class="track-title" id="track-title">AVATAR</div>
+    
+    <div class="nav-arrow" id="arrow-left">←</div>
+    <div class="nav-arrow" id="arrow-right">→</div>
+    
+    <div class="track-indicator" id="track-indicator">1 / 5</div>
+
+    <div id="start-message">
+        CLIQUEZ POUR DÉMARRER
+    </div>
+
+    <!-- Bouton Pause/Play -->
+    <div class="play-pause-btn" id="playPauseBtn">
+        <span id="playPauseIcon">⏸</span>
+    </div>
+
+    <script>
+        // Configuration des 5 pistes (audio en arrière-plan)
+        const tracks = [
+            { id: 0, name: "AVATAR", audio: "music/1.mp3", video: 0 },
+            { id: 1, name: "PISTE 2", audio: "music/2.mp3", video: 1 },
+            { id: 2, name: "PISTE 3", audio: "music/3.mp3", video: 2 },
+            { id: 3, name: "PISTE 4", audio: "music/4.mp3", video: 3 },
+            { id: 4, name: "PISTE 5", audio: "music/5.mp3", video: 4 }
+        ];
+        
+        let currentTrack = 0;
+        let audioElement = null;
+        let audioActive = false;
+        let isPlaying = true;  // ✅ Variable déclarée correctement
+        
+        // Créer un élément audio HTML standard
+        function initAudio() {
+            audioElement = new Audio();
+            audioElement.loop = true;
+            audioElement.volume = 0.8;
+        }
+        
+        // Charger et jouer une piste audio
+        function loadAndPlayTrack(trackIndex) {
+            if (!audioElement) return;
+            
+            const wasPlaying = !audioElement.paused;
+            audioElement.pause();
+            
+            audioElement.src = tracks[trackIndex].audio;
+            audioElement.load();
+            
+            if ((wasPlaying || audioActive) && isPlaying) {
+                audioElement.play().catch(e => console.log('Audio play error:', e));
+            }
+            
+            currentTrack = trackIndex;
+            
+            // Mettre à jour l'UI
+            document.getElementById('track-title').innerHTML = tracks[currentTrack].name;
+            document.getElementById('track-indicator').innerHTML = `${currentTrack + 1} / ${tracks.length}`;
+            
+            // Changer la vidéo
+            for (let i = 0; i < 5; i++) {
+                const video = document.getElementById(`video-${i}`);
+                if (video) {
+                    if (i === currentTrack) {
+                        video.style.display = 'block';
+                        if (video.paused && audioActive && isPlaying) {
+                            video.play().catch(e => console.log('Video play error:', e));
+                        }
+                    } else {
+                        video.style.display = 'none';
+                    }
+                }
+            }
+        }
+        
+        // Changer de piste
+        function changeTrack(delta) {
+            if (!audioActive) return;
+            
+            let newTrack = currentTrack + delta;
+            if (newTrack < 0) newTrack = 4;
+            if (newTrack > 4) newTrack = 0;
+            
+            if (newTrack !== currentTrack) {
+                loadAndPlayTrack(newTrack);
+            }
+        }
+        
+        // Démarrer l'expérience
+        async function startExperience() {
+            if (audioActive) return;
+            
+            // Initialiser l'audio
+            initAudio();
+            
+            // Démarrer l'audio (nécessite une interaction utilisateur)
+            audioElement.src = tracks[0].audio;
+            audioElement.load();
+            await audioElement.play();
+            audioActive = true;
+            isPlaying = true;
+            
+            // Démarrer la première vidéo
+            const startVideo = document.getElementById('video-0');
+            if (startVideo) {
+                startVideo.play().catch(e => console.log('Video play error:', e));
+            }
+            
+            // Masquer le message
+            document.getElementById('start-message').classList.add('hidden');
+        }
+        
+        // ✅ Gestion du bouton Play/Pause (corrigée)
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+        
+        function togglePlayPause() {
+            if (!audioActive) return;
+            
+            if (isPlaying) {
+                // Mettre en pause
+                if (audioElement) {
+                    audioElement.pause();
+                }
+                const currentVideo = document.getElementById(`video-${currentTrack}`);
+                if (currentVideo) {
+                    currentVideo.pause();
+                }
+                playPauseIcon.innerHTML = '▶';
+                isPlaying = false;
+            } else {
+                // Reprendre la lecture
+                if (audioElement) {
+                    audioElement.play().catch(e => console.log('Play error:', e));
+                }
+                const currentVideo = document.getElementById(`video-${currentTrack}`);
+                if (currentVideo) {
+                    currentVideo.play().catch(e => console.log('Video play error:', e));
+                }
+                playPauseIcon.innerHTML = '⏸';
+                isPlaying = true;
+            }
+        }
+        
+        // ✅ Connecter le bouton Play/Pause
+        playPauseBtn.onclick = togglePlayPause;
+        
+        // Configurer les événements
+        document.getElementById('arrow-left').onclick = () => changeTrack(-1);
+        document.getElementById('arrow-right').onclick = () => changeTrack(1);
+        document.getElementById('start-message').onclick = startExperience;
+        
+        // Pause quand la page n'est pas visible
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && audioActive && audioElement) {
+                audioElement.pause();
+            } else if (!document.hidden && audioActive && audioElement && audioElement.paused && isPlaying) {
+                audioElement.play().catch(e => console.log('Resume error:', e));
+            }
+        });
+        
+        // Démarrer automatiquement les vidéos silencieuses
+        window.addEventListener('load', () => {
+            for (let i = 0; i < 5; i++) {
+                const video = document.getElementById(`video-${i}`);
+                if (video && i === 0) {
+                    video.play().catch(e => console.log('Auto video play blocked:', e));
+                }
+            }
+        });
+    </script>
+</body>
+</html>
