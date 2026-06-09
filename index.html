@@ -31,7 +31,7 @@
             overflow: hidden;
         }
         
-        .video-background video {
+        .video-background iframe {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -40,7 +40,7 @@
             min-height: 100%;
             width: auto;
             height: auto;
-            object-fit: cover;
+            pointer-events: none;
         }
         
         /* Interface */
@@ -71,8 +71,7 @@
             font-weight: bold;
             letter-spacing: 4px;
             text-transform: uppercase;
-            -webkit-text-stroke: 1px rgb(25, 0, 255); /* Contour en rouge (WebKit) */
-            /* Fallback for non-WebKit browsers: approximate stroke with multiple shadows */
+            -webkit-text-stroke: 1px rgb(25, 0, 255);
             text-shadow: -1px -1px 0 rgb(38, 0, 255), 1px -1px 0 rgb(4, 0, 255), -1px 1px 0 rgb(0, 64, 255), 1px 1px 0 rgb(0, 93, 242);
             padding: 8px 20px;
             border-radius: 5px;
@@ -194,23 +193,38 @@
 </head>
 <body>
 
-    <!-- Vidéos d'arrière-plan -->
+    <!-- Vidéos YouTube en arrière-plan (via iframe) -->
     <div class="video-background" id="video-container">
-        <video id="video-0" class="bg-video" muted loop playsinline>
-            <source src="video/video1.mp4" type="video/mp4">
-        </video>
-        <video id="video-1" class="bg-video" muted loop playsinline style="display: none;">
-            <source src="video/video2.mp4" type="video/mp4">
-        </video>
-        <video id="video-2" class="bg-video" muted loop playsinline style="display: none;">
-            <source src="video/video3.mp4" type="video/mp4">
-        </video>
-        <video id="video-3" class="bg-video" muted loop playsinline style="display: none;">
-            <source src="video4.mp4" type="video/mp4">
-        </video>
-        <video id="video-4" class="bg-video" muted loop playsinline style="display: none;">
-            <source src="video/video1.mp4" type="video/mp4">
-        </video>
+        <iframe id="video-0" 
+            src="https://www.youtube.com/embed/1v-rMxJ9PPU?autoplay=0&mute=1&loop=1&playlist=1v-rMxJ9PPU&controls=0&showinfo=0&rel=0"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            style="display: block;">
+        </iframe>
+        <iframe id="video-1" 
+          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&showinfo=0&rel=0"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            style="display: none;">
+        </iframe>
+        <iframe id="video-2" 
+            src="https://www.youtube.com/embed/VIDEO3_ID?autoplay=0&mute=1&loop=1&playlist=VIDEO3_ID&controls=0&showinfo=0&rel=0"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            style="display: none;">
+        </iframe>
+        <iframe id="video-3" 
+            src="https://www.youtube.com/embed/VIDEO4_ID?autoplay=0&mute=1&loop=1&playlist=VIDEO4_ID&controls=0&showinfo=0&rel=0"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            style="display: none;">
+        </iframe>
+        <iframe id="video-4" 
+            src="https://www.youtube.com/embed/VIDEO5_ID?autoplay=0&mute=1&loop=1&playlist=VIDEO5_ID&controls=0&showinfo=0&rel=0"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            style="display: none;">
+        </iframe>
     </div>
 
     <!-- Interface -->
@@ -234,19 +248,40 @@
     </div>
 
     <script>
-        // Configuration des 5 pistes (audio en arrière-plan)
+        // Configuration des 5 pistes
         const tracks = [
-            { id: 0, name: "AVATAR", audio: "music/1.mp3", video: 0 },
-            { id: 1, name: "PISTE 2", audio: "music/2.mp3", video: 1 },
-            { id: 2, name: "PISTE 3", audio: "music/3.mp3", video: 2 },
-            { id: 3, name: "PISTE 4", audio: "music/4.mp3", video: 3 },
-            { id: 4, name: "PISTE 5", audio: "music/5.mp3", video: 4 }
+            { id: 0, name: "AVATAR", audio: "music/1.mp3", videoId: "1v-rMxJ9PPU" },
+            { id: 1, name: "PISTE 2", audio: "music/2.mp3", videoId: "6e8DLe8qvI4" },
+            { id: 2, name: "PISTE 3", audio: "music/3.mp3", videoId: "VIDEO3_ID" },
+            { id: 3, name: "PISTE 4", audio: "music/4.mp3", videoId: "VIDEO4_ID" },
+            { id: 4, name: "PISTE 5", audio: "music/5.mp3", videoId: "VIDEO5_ID" }
         ];
         
         let currentTrack = 0;
         let audioElement = null;
         let audioActive = false;
-        let isPlaying = true;  // ✅ Variable déclarée correctement
+        let isPlaying = true;
+        
+        // Fonction pour changer la vidéo YouTube
+        function changeYouTubeVideo(trackIndex) {
+            const videoId = tracks[trackIndex].videoId;
+            
+            // Mettre à jour l'iframe correspondante
+            for (let i = 0; i < 5; i++) {
+                const iframe = document.getElementById(`video-${i}`);
+                if (iframe) {
+                    if (i === trackIndex) {
+                        iframe.style.display = 'block';
+                        // Démarrer la vidéo
+                        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0`;
+                    } else {
+                        iframe.style.display = 'none';
+                        // Arrêter les autres vidéos
+                        iframe.src = iframe.src.replace("autoplay=1", "autoplay=0");
+                    }
+                }
+            }
+        }
         
         // Créer un élément audio HTML standard
         function initAudio() {
@@ -275,19 +310,9 @@
             document.getElementById('track-title').innerHTML = tracks[currentTrack].name;
             document.getElementById('track-indicator').innerHTML = `${currentTrack + 1} / ${tracks.length}`;
             
-            // Changer la vidéo
-            for (let i = 0; i < 5; i++) {
-                const video = document.getElementById(`video-${i}`);
-                if (video) {
-                    if (i === currentTrack) {
-                        video.style.display = 'block';
-                        if (video.paused && audioActive && isPlaying) {
-                            video.play().catch(e => console.log('Video play error:', e));
-                        }
-                    } else {
-                        video.style.display = 'none';
-                    }
-                }
+            // Changer la vidéo YouTube
+            if (audioActive) {
+                changeYouTubeVideo(currentTrack);
             }
         }
         
@@ -311,24 +336,27 @@
             // Initialiser l'audio
             initAudio();
             
-            // Démarrer l'audio (nécessite une interaction utilisateur)
+            // Démarrer l'audio
             audioElement.src = tracks[0].audio;
             audioElement.load();
-            await audioElement.play();
-            audioActive = true;
-            isPlaying = true;
             
-            // Démarrer la première vidéo
-            const startVideo = document.getElementById('video-0');
-            if (startVideo) {
-                startVideo.play().catch(e => console.log('Video play error:', e));
+            try {
+                await audioElement.play();
+                audioActive = true;
+                isPlaying = true;
+                
+                // Démarrer la première vidéo YouTube
+                changeYouTubeVideo(0);
+                
+                // Masquer le message
+                document.getElementById('start-message').classList.add('hidden');
+            } catch(e) {
+                console.log('Erreur:', e);
+                alert("Cliquez à nouveau pour démarrer");
             }
-            
-            // Masquer le message
-            document.getElementById('start-message').classList.add('hidden');
         }
         
-        // ✅ Gestion du bouton Play/Pause (corrigée)
+        // Gestion du bouton Play/Pause
         const playPauseBtn = document.getElementById('playPauseBtn');
         const playPauseIcon = document.getElementById('playPauseIcon');
         
@@ -340,10 +368,6 @@
                 if (audioElement) {
                     audioElement.pause();
                 }
-                const currentVideo = document.getElementById(`video-${currentTrack}`);
-                if (currentVideo) {
-                    currentVideo.pause();
-                }
                 playPauseIcon.innerHTML = '▶';
                 isPlaying = false;
             } else {
@@ -351,19 +375,13 @@
                 if (audioElement) {
                     audioElement.play().catch(e => console.log('Play error:', e));
                 }
-                const currentVideo = document.getElementById(`video-${currentTrack}`);
-                if (currentVideo) {
-                    currentVideo.play().catch(e => console.log('Video play error:', e));
-                }
                 playPauseIcon.innerHTML = '⏸';
                 isPlaying = true;
             }
         }
         
-        // ✅ Connecter le bouton Play/Pause
+        // Connecter les événements
         playPauseBtn.onclick = togglePlayPause;
-        
-        // Configurer les événements
         document.getElementById('arrow-left').onclick = () => changeTrack(-1);
         document.getElementById('arrow-right').onclick = () => changeTrack(1);
         document.getElementById('start-message').onclick = startExperience;
@@ -374,16 +392,6 @@
                 audioElement.pause();
             } else if (!document.hidden && audioActive && audioElement && audioElement.paused && isPlaying) {
                 audioElement.play().catch(e => console.log('Resume error:', e));
-            }
-        });
-        
-        // Démarrer automatiquement les vidéos silencieuses
-        window.addEventListener('load', () => {
-            for (let i = 0; i < 5; i++) {
-                const video = document.getElementById(`video-${i}`);
-                if (video && i === 0) {
-                    video.play().catch(e => console.log('Auto video play blocked:', e));
-                }
             }
         });
     </script>
