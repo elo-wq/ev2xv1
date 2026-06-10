@@ -1,8 +1,8 @@
 # ev2xv1
 music eloxx et elia
 
-Choose an avatar
-General distorsion
-Never forever
-Le grand Jeu
-Gertrude Stein 
+<ul> Choose an avatar </ul>
+<ul>General distorsion</ul>
+<ul>Never forever</ul>
+<ul>Le grand Jeu</ul>
+<ul>Gertrude Stein </ul>
