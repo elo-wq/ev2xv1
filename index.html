@@ -31,7 +31,7 @@
             overflow: hidden;
         }
         
-        .video-background iframe {
+        .video-background video {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -40,7 +40,7 @@
             min-height: 100%;
             width: auto;
             height: auto;
-            pointer-events: none;
+            object-fit: cover;
         }
         
         /* Interface */
@@ -53,7 +53,7 @@
             pointer-events: none;
             background: rgb(0, 0, 0);
             padding: 8px 16px;
-            color: white;
+            color: rgb(255, 255, 255);
         }
         
         #haut-gauche { left: 20px; }
@@ -67,12 +67,12 @@
             text-align: center;
             z-index: 2;
             pointer-events: none;
-            font-size: 24px;
+            font-size: 30px;
             font-weight: bold;
             letter-spacing: 4px;
             text-transform: uppercase;
-            -webkit-text-stroke: 1px rgb(25, 0, 255);
-            text-shadow: -1px -1px 0 rgb(38, 0, 255), 1px -1px 0 rgb(4, 0, 255), -1px 1px 0 rgb(0, 64, 255), 1px 1px 0 rgb(0, 93, 242);
+            -webkit-text-stroke: 1px rgb(255, 0, 234);
+            text-shadow: -1px -1px 0 rgb(255, 0, 247), 1px -1px 0 rgb(255, 0, 204), -1px 1px 0 rgb(255, 0, 212), 1px 1px 0 rgb(255, 0, 195);
             padding: 8px 20px;
             border-radius: 5px;
             white-space: nowrap;
@@ -85,10 +85,7 @@
             transform: translateY(-50%);
             width: 60px;
             height: 60px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
+            background: rgba(0, 0, 0, 0);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -100,27 +97,28 @@
             font-weight: bold;
         }
         
-        .nav-arrow:hover {
-            background: rgba(255,255,255,0.2);
+       .nav-arrow:hover {
+          background: rgb(255, 1, 208);
             transform: translateY(-50%) scale(1.1);
         }
+
         
         #arrow-left { left: 20px; }
         #arrow-right { right: 20px; }
         
-        .track-indicator {
+      /* .track-indicator {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 2;
             font-size: 12px;
-            background: rgb(0, 0, 0);
+            background: rgba(0, 0, 0, 0.038);
             padding: 5px 15px;
             border-radius: 5px;
             pointer-events: none;
-            color: white;
-        }
+            color: rgb(0, 0, 0);
+        }/*
         
         /* Message de démarrage */
         #start-message {
@@ -132,9 +130,6 @@
             z-index: 10;
             background: rgba(0,0,0,0.9);
             padding: 30px 50px;
-            border-radius: 10px;
-            border: 2px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(15px);
             cursor: pointer;
             transition: all 0.3s ease;
             color: white;
@@ -152,14 +147,14 @@
             display: none !important;
         }
         
-        /* Bouton Pause/Play */
+        /* Bouton Pause/Play - bas droite */
         .play-pause-btn {
             position: fixed;
             bottom: 20px;
             right: 20px;
             width: 50px;
             height: 50px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.112);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.3);
             border-radius: 50%;
@@ -174,7 +169,7 @@
         }
         
         .play-pause-btn:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgb(255, 0, 212);
             transform: scale(1.1);
         }
         
@@ -182,56 +177,182 @@
             transform: scale(0.95);
         }
         
+        /* Bouton Info - bas gauche */
+        .info-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.237);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .info-btn:hover {
+            background: rgb(255, 0, 230);
+            transform: scale(1.1);
+        }
+        
+        .info-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Fenêtre modale d'information */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: rgba(0,0,0,0.95);
+            max-width: 500px;
+            width: 90%;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .modal-content h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+        
+        .modal-content p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .modal-content ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        
+        .modal-content li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            color: #ff4444;
+            transform: scale(1.1);
+        }
+        
+        .modal-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        /* Message d'erreur si audio manquant */
+        .audio-warning {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,0,0,0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 11px;
+            z-index: 5;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
         @media (max-width: 768px) {
             .track-title { font-size: 14px; white-space: normal; width: auto; top: 15px; }
             .nav-arrow { width: 45px; height: 45px; font-size: 24px; }
-            .play-pause-btn { width: 40px; height: 40px; font-size: 16px; bottom: 15px; right: 15px; }
+            .play-pause-btn, .info-btn { width: 40px; height: 40px; font-size: 16px; bottom: 15px; }
+            .info-btn { left: 15px; }
+            .play-pause-btn { right: 15px; }
             #start-message { font-size: 14px; padding: 20px 30px; white-space: normal; text-align: center; }
             .coin-texte { font-size: 10px; top: 15px; }
+            .modal-content { padding: 20px; margin: 20px; }
+            .modal-content h2 { font-size: 18px; }
+            .modal-content p, .modal-content li { font-size: 12px; }
+            .audio-warning { font-size: 9px; bottom: 70px; white-space: nowrap; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Vidéos YouTube en arrière-plan (via iframe) -->
+    <!-- Vidéos d'arrière-plan locales -->
     <div class="video-background" id="video-container">
-        <iframe id="video-0" 
-            src="https://www.youtube.com/embed/1v-rMxJ9PPU?autoplay=0&mute=1&loop=1&playlist=1v-rMxJ9PPU&controls=0&showinfo=0&rel=0"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            style="display: block;">
-        </iframe>
-        <iframe id="video-1" 
-          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&showinfo=0&rel=0"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            style="display: none;">
-        </iframe>
-        <iframe id="video-2" 
-            src="https://www.youtube.com/embed/VIDEO3_ID?autoplay=0&mute=1&loop=1&playlist=VIDEO3_ID&controls=0&showinfo=0&rel=0"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            style="display: none;">
-        </iframe>
-        <iframe id="video-3" 
-            src="https://www.youtube.com/embed/VIDEO4_ID?autoplay=0&mute=1&loop=1&playlist=VIDEO4_ID&controls=0&showinfo=0&rel=0"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            style="display: none;">
-        </iframe>
-        <iframe id="video-4" 
-            src="https://www.youtube.com/embed/VIDEO5_ID?autoplay=0&mute=1&loop=1&playlist=VIDEO5_ID&controls=0&showinfo=0&rel=0"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            style="display: none;">
-        </iframe>
+        <video id="video-0" class="bg-video" muted loop playsinline>
+            <source src="video/video1.mp4" type="video/mp4">
+        </video>
+        <video id="video-1" class="bg-video" muted loop playsinline style="display: none;">
+            <source src="video/video2.mp4" type="video/mp4">
+        </video>
+        <video id="video-2" class="bg-video" muted loop playsinline style="display: none;">
+            <source src="video/video3.mp4" type="video/mp4">
+        </video>
+        <video id="video-3" class="bg-video" muted loop playsinline style="display: none;">
+            <source src="video/video4.mp4" type="video/mp4">
+        </video>
+        <video id="video-4" class="bg-video" muted loop playsinline style="display: none;">
+            <source src="video/video5.mp4" type="video/mp4">
+        </video>
     </div>
 
     <!-- Interface -->
     <div id="haut-gauche" class="coin-texte">EV2X</div>
     <div id="haut-droite" class="coin-texte">Les Pas Perdus</div>
     
-    <div class="track-title" id="track-title">AVATAR</div>
+    <div class="track-title" id="track-title">Choose an Avatar</div>
     
     <div class="nav-arrow" id="arrow-left">←</div>
     <div class="nav-arrow" id="arrow-right">→</div>
@@ -242,77 +363,134 @@
         CLIQUEZ POUR DÉMARRER
     </div>
 
-    <!-- Bouton Pause/Play -->
+    <!-- Bouton Pause/Play - bas droite -->
     <div class="play-pause-btn" id="playPauseBtn">
         <span id="playPauseIcon">⏸</span>
     </div>
 
+    <!-- Bouton Info - bas gauche -->
+    <div class="info-btn" id="infoBtn">
+        <span>i</span>
+    </div>
+
+    <!-- Fenêtre modale d'information -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2> EV2X </h2>
+            <p> Petit projet entre Elox et Elia </p>
+            <p><strong> 5 morceaux </strong></p>
+    
+            <ul>
+                <li> Choose an avatar </li>
+                <li> General distorsion </li>
+                <li> Never forever </li>
+                <li> Le grand Jeu </li>
+                <li> Gertrude Stein </li>
+        </div>
+    </div>
+
+    <div id="audio-warning" class="audio-warning" style="display: none;">⚠️ Fichiers audio manquants - Vidéo uniquement</div>
+
     <script>
-        // Configuration des 5 pistes
+        // Configuration des 5 pistes avec vidéos LOCALES
         const tracks = [
-            { id: 0, name: "AVATAR", audio: "music/1.mp3", videoId: "1v-rMxJ9PPU" },
-            { id: 1, name: "PISTE 2", audio: "music/2.mp3", videoId: "6e8DLe8qvI4" },
-            { id: 2, name: "PISTE 3", audio: "music/3.mp3", videoId: "VIDEO3_ID" },
-            { id: 3, name: "PISTE 4", audio: "music/4.mp3", videoId: "VIDEO4_ID" },
-            { id: 4, name: "PISTE 5", audio: "music/5.mp3", videoId: "VIDEO5_ID" }
+            { id: 0, name: "choose an avatar", audio: "music/1.mp3" },
+            { id: 1, name: "general distorsion", audio: "music/2.mp3" },
+            { id: 2, name: "never forever", audio: "music/3.mp3" },
+            { id: 3, name: "Le grand Jeu", audio: "music/4.mp3" },
+            { id: 4, name: "Gertrude Stein", audio: "music/5.mp3" }
         ];
         
         let currentTrack = 0;
         let audioElement = null;
         let audioActive = false;
         let isPlaying = true;
+        let audioAvailable = true;
         
-        // Fonction pour changer la vidéo YouTube
-        function changeYouTubeVideo(trackIndex) {
-            const videoId = tracks[trackIndex].videoId;
-            
-            // Mettre à jour l'iframe correspondante
+        // Gestion de la modale info
+        const modal = document.getElementById('infoModal');
+        const infoBtn = document.getElementById('infoBtn');
+        const closeModal = document.getElementById('closeModal');
+        
+        function openModal() {
+            modal.classList.add('show');
+        }
+        
+        function closeModalFunc() {
+            modal.classList.remove('show');
+        }
+        
+        infoBtn.onclick = openModal;
+        closeModal.onclick = closeModalFunc;
+        
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                closeModalFunc();
+            }
+        };
+        
+        // Fonction pour changer la vidéo LOCALE
+        function changeLocalVideo(trackIndex) {
             for (let i = 0; i < 5; i++) {
-                const iframe = document.getElementById(`video-${i}`);
-                if (iframe) {
+                const video = document.getElementById(`video-${i}`);
+                if (video) {
                     if (i === trackIndex) {
-                        iframe.style.display = 'block';
-                        // Démarrer la vidéo
-                        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0`;
+                        video.style.display = 'block';
+                        if (audioActive && isPlaying) {
+                            video.play().catch(e => console.log('Video play error:', e));
+                        }
                     } else {
-                        iframe.style.display = 'none';
-                        // Arrêter les autres vidéos
-                        iframe.src = iframe.src.replace("autoplay=1", "autoplay=0");
+                        video.style.display = 'none';
+                        video.pause();
                     }
                 }
             }
         }
         
-        // Créer un élément audio HTML standard
+        // Créer un élément audio
         function initAudio() {
             audioElement = new Audio();
             audioElement.loop = true;
             audioElement.volume = 0.8;
+            
+            // Tester si les fichiers audio existent
+            const testAudio = new Audio();
+            testAudio.src = "music/1.mp3";
+            testAudio.onerror = function() {
+                audioAvailable = false;
+                document.getElementById('audio-warning').style.display = 'block';
+                console.log("Fichiers audio non trouvés - Mode vidéo uniquement");
+            };
         }
         
-        // Charger et jouer une piste audio
+        // Charger et jouer une piste
         function loadAndPlayTrack(trackIndex) {
-            if (!audioElement) return;
+            if (!audioElement && audioAvailable) return;
             
-            const wasPlaying = !audioElement.paused;
-            audioElement.pause();
-            
-            audioElement.src = tracks[trackIndex].audio;
-            audioElement.load();
-            
-            if ((wasPlaying || audioActive) && isPlaying) {
-                audioElement.play().catch(e => console.log('Audio play error:', e));
+            if (audioAvailable && audioElement) {
+                const wasPlaying = !audioElement.paused;
+                audioElement.pause();
+                
+                audioElement.src = tracks[trackIndex].audio;
+                audioElement.load();
+                
+                if ((wasPlaying || audioActive) && isPlaying) {
+                    audioElement.play().catch(e => {
+                        console.log('Audio error:', e);
+                        audioAvailable = false;
+                        document.getElementById('audio-warning').style.display = 'block';
+                    });
+                }
             }
             
             currentTrack = trackIndex;
             
-            // Mettre à jour l'UI
             document.getElementById('track-title').innerHTML = tracks[currentTrack].name;
             document.getElementById('track-indicator').innerHTML = `${currentTrack + 1} / ${tracks.length}`;
             
-            // Changer la vidéo YouTube
             if (audioActive) {
-                changeYouTubeVideo(currentTrack);
+                changeLocalVideo(currentTrack);
             }
         }
         
@@ -333,64 +511,68 @@
         async function startExperience() {
             if (audioActive) return;
             
-            // Initialiser l'audio
             initAudio();
             
-            // Démarrer l'audio
-            audioElement.src = tracks[0].audio;
-            audioElement.load();
-            
-            try {
-                await audioElement.play();
-                audioActive = true;
-                isPlaying = true;
-                
-                // Démarrer la première vidéo YouTube
-                changeYouTubeVideo(0);
-                
-                // Masquer le message
-                document.getElementById('start-message').classList.add('hidden');
-            } catch(e) {
-                console.log('Erreur:', e);
-                alert("Cliquez à nouveau pour démarrer");
+            if (audioAvailable) {
+                try {
+                    audioElement.src = tracks[0].audio;
+                    audioElement.load();
+                    await audioElement.play();
+                    isPlaying = true;
+                } catch(e) {
+                    console.log('Audio non disponible:', e);
+                    audioAvailable = false;
+                    document.getElementById('audio-warning').style.display = 'block';
+                }
             }
+            
+            audioActive = true;
+            
+            // Démarrer la première vidéo
+            changeLocalVideo(0);
+            
+            document.getElementById('start-message').classList.add('hidden');
         }
         
-        // Gestion du bouton Play/Pause
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const playPauseIcon = document.getElementById('playPauseIcon');
-        
+        // Play/Pause
         function togglePlayPause() {
             if (!audioActive) return;
             
-            if (isPlaying) {
-                // Mettre en pause
-                if (audioElement) {
+            if (audioAvailable && audioElement) {
+                if (isPlaying) {
                     audioElement.pause();
+                    playPauseIcon.innerHTML = '▶';
+                    isPlaying = false;
+                } else {
+                    audioElement.play();
+                    playPauseIcon.innerHTML = '⏸';
+                    isPlaying = true;
                 }
-                playPauseIcon.innerHTML = '▶';
-                isPlaying = false;
-            } else {
-                // Reprendre la lecture
-                if (audioElement) {
-                    audioElement.play().catch(e => console.log('Play error:', e));
+            }
+            
+            // Mettre en pause/reprendre la vidéo également
+            const currentVideo = document.getElementById(`video-${currentTrack}`);
+            if (currentVideo) {
+                if (isPlaying) {
+                    currentVideo.play().catch(e => console.log('Video play error:', e));
+                } else {
+                    currentVideo.pause();
                 }
-                playPauseIcon.innerHTML = '⏸';
-                isPlaying = true;
             }
         }
         
-        // Connecter les événements
-        playPauseBtn.onclick = togglePlayPause;
+        // Événements
+        const playPauseIcon = document.getElementById('playPauseIcon');
+        document.getElementById('playPauseBtn').onclick = togglePlayPause;
         document.getElementById('arrow-left').onclick = () => changeTrack(-1);
         document.getElementById('arrow-right').onclick = () => changeTrack(1);
         document.getElementById('start-message').onclick = startExperience;
         
-        // Pause quand la page n'est pas visible
+        // Gestion visibilité page
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden && audioActive && audioElement) {
+            if (document.hidden && audioActive && audioAvailable && audioElement) {
                 audioElement.pause();
-            } else if (!document.hidden && audioActive && audioElement && audioElement.paused && isPlaying) {
+            } else if (!document.hidden && audioActive && audioAvailable && audioElement && audioElement.paused && isPlaying) {
                 audioElement.play().catch(e => console.log('Resume error:', e));
             }
         });
