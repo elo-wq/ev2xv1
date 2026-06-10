@@ -33,12 +33,12 @@ html, body {
     object-fit:cover;
 }
 
-/* TOP UI */
+/* UI */
 .coin-texte {
     position:fixed;
     top:20px;
-    background:#000;
-    color:#fff;
+    color:white;
+    background:black;
     padding:8px 16px;
     z-index:2;
 }
@@ -63,8 +63,8 @@ html, body {
     transform:translateY(-50%);
     font-size:30px;
     color:white;
-    z-index:3;
     cursor:pointer;
+    z-index:3;
 }
 
 #arrow-left { left:20px; }
@@ -103,35 +103,7 @@ html, body {
 .play-pause-btn { right:20px; }
 .info-btn { left:20px; }
 
-/* MODAL */
-.modal {
-    position:fixed;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background:rgba(0,0,0,0.7);
-    z-index:20;
-}
-
-.modal-content {
-    background:black;
-    color:white;
-    padding:30px;
-    max-width:400px;
-    text-align:center;
-    border:1px solid white;
-}
-
-.modal.show { display:flex; }
-
-.close {
-    margin-top:20px;
-    cursor:pointer;
-    color:#ff00d4;
-}
-
-/* PROGRESS BAR */
+/* PROGRESS */
 .progress-container {
     position:fixed;
     bottom:0;
@@ -145,7 +117,7 @@ html, body {
 .progress-bar {
     height:100%;
     width:0%;
-    background:rgb(255,0,212);
+    background:#ff00d4;
 }
 </style>
 </head>
@@ -170,28 +142,10 @@ html, body {
 <div id="arrow-left" class="nav-arrow">←</div>
 <div id="arrow-right" class="nav-arrow">→</div>
 
-<!-- START -->
 <div id="start-message">CLIQUEZ POUR DÉMARRER</div>
 
-<!-- BUTTONS -->
 <div class="play-pause-btn" id="play">⏸</div>
-<div class="info-btn" id="info">i</div>
-
-<!-- MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h2>EV2X</h2>
-    <p>Projet entre Elox & Elia</p>
-    <p>
-      Choose an avatar<br>
-      General distorsion<br>
-      Never forever<br>
-      Le grand Jeu<br>
-      Gertrude Stein
-    </p>
-    <div class="close" id="close">FERMER</div>
-  </div>
-</div>
+<div class="info-btn">i</div>
 
 <!-- PROGRESS -->
 <div class="progress-container">
@@ -210,6 +164,7 @@ const tracks = [
 
 let i = 0;
 let started = false;
+let isPlaying = false;
 
 const audio = new Audio();
 audio.loop = true;
@@ -224,20 +179,24 @@ audio.ontimeupdate = () => {
  }
 };
 
-/* VIDEO SWITCH */
-function showVideo(n){
+/* VIDEO CONTROL */
+function showVideo(n, playVideo=true){
  for(let j=0;j<5;j++){
   const v=document.getElementById("v"+j);
   v.style.display = (j===n)?"block":"none";
 
-  if(j===n && started) v.play().catch(()=>{});
-  else v.pause();
+  if(j===n && started && isPlaying && playVideo){
+    v.play().catch(()=>{});
+  } else {
+    v.pause();
+  }
  }
 }
 
 /* START */
 document.getElementById("start-message").onclick = async () => {
  started = true;
+ isPlaying = true;
 
  audio.src = tracks[0].audio;
 
@@ -246,52 +205,58 @@ document.getElementById("start-message").onclick = async () => {
  } catch(e){}
 
  showVideo(0);
+
  document.getElementById("start-message").style.display="none";
 };
 
-/* TRACK CHANGE (FIX IMPORTANT ICI) */
+/* TRACK CHANGE */
 function change(d){
  i += d;
  if(i<0) i=4;
  if(i>4) i=0;
 
  document.getElementById("title").innerText = tracks[i].name;
- showVideo(i);
 
  audio.src = tracks[i].audio;
  audio.load();
 
- // 🔥 FIX IMPORTANT : relance obligatoire après changement
- audio.play()
- .catch(e => console.log("play bloqué", e));
+ if(isPlaying){
+  audio.play().catch(()=>{});
+ }
 
- document.getElementById("play").innerText="⏸";
+ showVideo(i);
 }
+
+/* PLAY / PAUSE (SYNC AUDIO + VIDEO) */
+document.getElementById("play").onclick = () => {
+
+ const videos = document.querySelectorAll("video");
+
+ if(audio.paused){
+    audio.play();
+    isPlaying = true;
+    document.getElementById("play").innerText="⏸";
+
+    videos.forEach(v=>{
+        if(v.style.display==="block"){
+            v.play().catch(()=>{});
+        }
+    });
+
+ } else {
+    audio.pause();
+    isPlaying = false;
+    document.getElementById("play").innerText="▶";
+
+    videos.forEach(v=>{
+        v.pause();
+    });
+ }
+};
 
 /* NAV */
 document.getElementById("arrow-left").onclick=()=>change(-1);
 document.getElementById("arrow-right").onclick=()=>change(1);
-
-/* PLAY PAUSE */
-document.getElementById("play").onclick = () => {
- if(audio.paused){
-  audio.play();
-  document.getElementById("play").innerText="⏸";
- } else {
-  audio.pause();
-  document.getElementById("play").innerText="▶";
- }
-};
-
-/* MODAL */
-const modal=document.getElementById("modal");
-
-document.getElementById("info").onclick=()=>modal.classList.add("show");
-document.getElementById("close").onclick=()=>modal.classList.remove("show");
-
-modal.onclick=(e)=>{
- if(e.target===modal) modal.classList.remove("show");
-};
 
 </script>
 
