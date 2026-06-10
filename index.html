@@ -6,11 +6,7 @@
 <title>EV2X</title>
 
 <style>
-* {
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+* { margin:0; padding:0; box-sizing:border-box; }
 
 html, body {
     width:100%;
@@ -37,7 +33,7 @@ html, body {
     object-fit:cover;
 }
 
-/* UI TOP */
+/* TOP UI */
 .coin-texte {
     position:fixed;
     top:20px;
@@ -135,7 +131,7 @@ html, body {
     color:#ff00d4;
 }
 
-/* 🎵 PROGRESS BAR */
+/* PROGRESS BAR */
 .progress-container {
     position:fixed;
     bottom:0;
@@ -150,7 +146,6 @@ html, body {
     height:100%;
     width:0%;
     background:rgb(255,0,212);
-    transition:width 0.1s linear;
 }
 </style>
 </head>
@@ -188,17 +183,17 @@ html, body {
     <h2>EV2X</h2>
     <p>Projet entre Elox & Elia</p>
     <p>
-    Choose an avatar<br>
-    General distorsion<br>
-    Never forever<br>
-    Le grand Jeu<br>
-    Gertrude Stein
+      Choose an avatar<br>
+      General distorsion<br>
+      Never forever<br>
+      Le grand Jeu<br>
+      Gertrude Stein
     </p>
     <div class="close" id="close">FERMER</div>
   </div>
 </div>
 
-<!-- 🎵 PROGRESS BAR -->
+<!-- PROGRESS -->
 <div class="progress-container">
     <div class="progress-bar" id="progress"></div>
 </div>
@@ -220,21 +215,21 @@ const audio = new Audio();
 audio.loop = true;
 audio.volume = 0.8;
 
-/* PROGRESS BAR */
-const progressBar = document.getElementById("progress");
+const progress = document.getElementById("progress");
 
+/* PROGRESS BAR */
 audio.ontimeupdate = () => {
  if(audio.duration){
-  let percent = (audio.currentTime / audio.duration) * 100;
-  progressBar.style.width = percent + "%";
+  progress.style.width = (audio.currentTime / audio.duration) * 100 + "%";
  }
 };
 
-/* VIDEO */
+/* VIDEO SWITCH */
 function showVideo(n){
  for(let j=0;j<5;j++){
   const v=document.getElementById("v"+j);
   v.style.display = (j===n)?"block":"none";
+
   if(j===n && started) v.play().catch(()=>{});
   else v.pause();
  }
@@ -243,6 +238,7 @@ function showVideo(n){
 /* START */
 document.getElementById("start-message").onclick = async () => {
  started = true;
+
  audio.src = tracks[0].audio;
 
  try {
@@ -253,19 +249,26 @@ document.getElementById("start-message").onclick = async () => {
  document.getElementById("start-message").style.display="none";
 };
 
-/* TRACKS */
+/* TRACK CHANGE (FIX IMPORTANT ICI) */
 function change(d){
  i += d;
  if(i<0) i=4;
  if(i>4) i=0;
 
- audio.src = tracks[i].audio;
- if(!audio.paused) audio.play().catch(()=>{});
-
  document.getElementById("title").innerText = tracks[i].name;
  showVideo(i);
+
+ audio.src = tracks[i].audio;
+ audio.load();
+
+ // 🔥 FIX IMPORTANT : relance obligatoire après changement
+ audio.play()
+ .catch(e => console.log("play bloqué", e));
+
+ document.getElementById("play").innerText="⏸";
 }
 
+/* NAV */
 document.getElementById("arrow-left").onclick=()=>change(-1);
 document.getElementById("arrow-right").onclick=()=>change(1);
 
